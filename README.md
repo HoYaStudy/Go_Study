@@ -2,6 +2,13 @@
 
 This repository is for HoYa's Go study.
 
+## Create a Module
+
+> $ go mod init \<project location>
+>
+> Ex)
+> $ go mod init github.com/HoYaStudy/Go_Study/test
+
 ## Reference
 
 * [HoYa's Dev Blog](https://hdevstudy.tistory.com/category/go)
