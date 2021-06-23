@@ -6,26 +6,26 @@ import (
 	"sync"
 )
 
-type block struct {
-	data     string
-	hash     string
-	prevHash string
+type Block struct {
+	Data     string
+	Hash     string
+	PrevHash string
 }
 
 type blockchain struct {
-	blocks []*block
+	blocks []*Block
 }
 
 var b *blockchain
 var once sync.Once
 
-func (b *block) calculateHash() {
-	hash := sha256.Sum256([]byte(b.data + b.prevHash))
-	b.hash = fmt.Sprintf("%x", hash)
-}
-
 func (b *blockchain) AddBlock(data string) {
 	b.blocks = append(b.blocks, createBlock(data))
+}
+
+func (b *Block) calculateHash() {
+	hash := sha256.Sum256([]byte(b.Data + b.PrevHash))
+	b.Hash = fmt.Sprintf("%x", hash)
 }
 
 func GetBlockchain() *blockchain {
@@ -38,8 +38,12 @@ func GetBlockchain() *blockchain {
 	return b
 }
 
-func createBlock(data string) *block {
-	newBlock := block{data, "", getLastHash()}
+func (b *blockchain) GetAllBlocks() []*Block {
+	return b.blocks
+}
+
+func createBlock(data string) *Block {
+	newBlock := Block{data, "", getLastHash()}
 	newBlock.calculateHash()
 	return &newBlock
 }
@@ -49,13 +53,5 @@ func getLastHash() string {
 	if totalBlocks == 0 {
 		return ""
 	}
-	return GetBlockchain().blocks[totalBlocks-1].hash
-}
-
-func (b *blockchain) DisplayBlocks() {
-	for _, block := range b.blocks {
-		fmt.Printf("Data: %s\n", block.data)
-		fmt.Printf("Hash: %s\n", block.hash)
-		fmt.Printf("Prev Hash: %s\n\n", block.prevHash)
-	}
+	return GetBlockchain().blocks[totalBlocks-1].Hash
 }
