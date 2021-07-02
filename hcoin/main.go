@@ -1,10 +1,9 @@
 package main
 
 import (
-	"github.com/HoYaStudy/Go_Study/hcoin/rest"
+	"github.com/HoYaStudy/Go_Study/hcoin/cli"
 )
 
 func main() {
-	// go explorer.Start(3000)
-	rest.Start(4000)
+	cli.Start()
 }
