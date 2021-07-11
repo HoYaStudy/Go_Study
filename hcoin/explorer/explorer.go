@@ -32,7 +32,7 @@ func Start(port int) {
 }
 
 func home(rw http.ResponseWriter, r *http.Request) {
-	data := homeData{"Home", blockchain.GetBlockchain().GetAllBlocks()}
+	data := homeData{"Home", nil}
 	htmlTemplates.ExecuteTemplate(rw, "home", data)
 }
 
@@ -43,7 +43,7 @@ func addBlock(rw http.ResponseWriter, r *http.Request) {
 	case "POST":
 		r.ParseForm()
 		data := r.Form.Get("blockData")
-		blockchain.GetBlockchain().AddBlock(data)
+		blockchain.Blockchain().AddBlock(data)
 		http.Redirect(rw, r, "/", http.StatusPermanentRedirect)
 	}
 }
