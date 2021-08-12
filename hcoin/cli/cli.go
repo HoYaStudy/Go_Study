@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"runtime"
 
 	"github.com/HoYaStudy/Go_Study/hcoin/explorer"
 	"github.com/HoYaStudy/Go_Study/hcoin/rest"
@@ -39,5 +38,5 @@ func usage() {
 	fmt.Println()
 	fmt.Println("-port=4000:  Set the PORT of the server")
 	fmt.Println("-mode=rest:  Choose between 'html' and 'rest'")
-	runtime.Goexit()
+	os.Exit(0)
 }

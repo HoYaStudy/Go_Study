@@ -13,10 +13,6 @@ import (
 
 type url string
 
-type errorResponse struct {
-	ErrorMessage string `json:"errorMessage"`
-}
-
 type urlDescription struct {
 	URL         url    `json:"url"`
 	Method      string `json:"method"`
@@ -24,14 +20,22 @@ type urlDescription struct {
 	Payload     string `json:"payload,omitempty"`
 }
 
+type addTxPayload struct {
+	To     string
+	Amount int
+}
+
 type balanceResponse struct {
 	Address string `json:"address"`
 	Balance int    `json:"balance"`
 }
 
-type addTxPayload struct {
-	To     string
-	Amount int
+type myWalletResponse struct {
+	Address string `json:"address"`
+}
+
+type errorResponse struct {
+	ErrorMessage string `json:"errorMessage"`
 }
 
 var port string
@@ -148,7 +152,9 @@ func transactions(rw http.ResponseWriter, r *http.Request) {
 	utils.HandleErr(json.NewDecoder(r.Body).Decode(&payload))
 	err := blockchain.Mempool.AddTx(payload.To, payload.Amount)
 	if err != nil {
-		json.NewEncoder(rw).Encode(errorResponse{"not enough funds"})
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(errorResponse{err.Error()})
+		return
 	}
 	rw.WriteHeader(http.StatusCreated)
 }
