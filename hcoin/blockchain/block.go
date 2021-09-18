@@ -36,8 +36,8 @@ func createBlock(prevHash string, height int, difficulty int) *Block {
 		Hash: "", PrevHash: prevHash, Height: height, Difficulty: difficulty, Nonce: 0,
 	}
 	block.mine()
-	block.Transactions = Mempool.TxToConfirm()
-	block.persist()
+	block.Transactions = Mempool().TxToConfirm()
+	persistBlock(block)
 	return block
 
 }
@@ -56,7 +56,7 @@ func (b *Block) mine() {
 	}
 }
 
-func (b *Block) persist() {
+func persistBlock(b *Block) {
 	db.SaveBlock(b.Hash, utils.ToBytes(b))
 }
 

@@ -1,2 +1,5 @@
 # Debug
 **/__debug_bin
+
+# MACOSX
+**/.DS_Store

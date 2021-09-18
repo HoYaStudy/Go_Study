@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/HoYaStudy/Go_Study/hcoin/utils"
@@ -27,7 +28,8 @@ type TxOut struct {
 }
 
 type mempool struct {
-	Txs []*Tx
+	Txs map[string]*Tx
+	m   sync.Mutex
 }
 
 type UTxOut struct {
@@ -40,25 +42,42 @@ const (
 	minerReward int = 50
 )
 
-var Mempool *mempool = &mempool{}
+var m *mempool = &mempool{}
+var memOnce sync.Once
 var ErrorNoMoney = errors.New("not enough money")
 var ErrorNotValid = errors.New("Tx invalid")
 
-func (m *mempool) AddTx(to string, amount int) error {
+func (m *mempool) AddTx(to string, amount int) (*Tx, error) {
 	tx, err := makeTx(wallet.Wallet().Address, to, amount)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	m.Txs = append(m.Txs, tx)
-	return nil
+	m.Txs[tx.ID] = tx
+	return tx, nil
+}
+
+func (m *mempool) AddPeerTx(tx *Tx) {
+	m.m.Lock()
+	defer m.m.Unlock()
+	m.Txs[tx.ID] = tx
 }
 
 func (m *mempool) TxToConfirm() []*Tx {
 	coinbase := makeCoinbaseTx(wallet.Wallet().Address)
-	txs := m.Txs
+	var txs []*Tx
+	for _, tx := range m.Txs {
+		txs = append(txs, tx)
+	}
 	txs = append(txs, coinbase)
-	m.Txs = nil
+	m.Txs = make(map[string]*Tx)
 	return txs
+}
+
+func Mempool() *mempool {
+	memOnce.Do(func() {
+		m = &mempool{Txs: make(map[string]*Tx)}
+	})
+	return m
 }
 
 func (t *Tx) getId() {
@@ -123,7 +142,7 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 func isOnMempool(uTxOut *UTxOut) bool {
 	exists := false
 Loop:
-	for _, tx := range Mempool.Txs {
+	for _, tx := range Mempool().Txs {
 		for _, input := range tx.TxIns {
 			if input.TxID == uTxOut.TxID && input.Index == uTxOut.Index {
 				exists = true
