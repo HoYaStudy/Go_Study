@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
+	"io/fs"
 	"math/big"
 	"os"
 
@@ -18,14 +19,23 @@ type wallet struct {
 	privateKey *ecdsa.PrivateKey
 }
 
+type fileLayer interface {
+	hasWalletFile() bool
+	writeFile(name string, data []byte, perm fs.FileMode) error
+	readFile(name string) ([]byte, error)
+}
+
+type layer struct{}
+
 const fileName string = "hcoin.wallet"
 
 var w *wallet
+var files fileLayer = layer{}
 
 func Wallet() *wallet {
 	if w == nil {
 		w = &wallet{}
-		if hasWalletFile() {
+		if files.hasWalletFile() {
 			w.privateKey = restoreKey()
 		} else {
 			key := createPrivKey()
@@ -61,9 +71,17 @@ func Verify(signature, payload, address string) bool {
 	return ok
 }
 
-func hasWalletFile() bool {
+func (layer) hasWalletFile() bool {
 	_, err := os.Stat(fileName)
 	return !os.IsNotExist(err)
+}
+
+func (layer) writeFile(name string, data []byte, perm fs.FileMode) error {
+	return os.WriteFile(name, data, perm)
+}
+
+func (layer) readFile(name string) ([]byte, error) {
+	return os.ReadFile(name)
 }
 
 func createPrivKey() *ecdsa.PrivateKey {
@@ -75,12 +93,12 @@ func createPrivKey() *ecdsa.PrivateKey {
 func persistKey(key *ecdsa.PrivateKey) {
 	bytes, err := x509.MarshalECPrivateKey(key)
 	utils.HandleErr(err)
-	err = os.WriteFile(fileName, bytes, 0644)
+	err = files.writeFile(fileName, bytes, 0644)
 	utils.HandleErr(err)
 }
 
 func restoreKey() (key *ecdsa.PrivateKey) {
-	keyAsBytes, err := os.ReadFile(fileName)
+	keyAsBytes, err := files.readFile(fileName)
 	utils.HandleErr(err)
 	key, err = x509.ParseECPrivateKey(keyAsBytes)
 	utils.HandleErr(err)
@@ -97,7 +115,7 @@ func restoreBigInts(payload string) (*big.Int, *big.Int, error) {
 	secondHalfBytes := bytes[len(bytes)/2:]
 	bigA, bigB := big.Int{}, big.Int{}
 	bigA.SetBytes(firstHalfBytes)
-	bigA.SetBytes(secondHalfBytes)
+	bigB.SetBytes(secondHalfBytes)
 	return &bigA, &bigB, nil
 }
 

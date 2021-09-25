@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HoYaStudy/Go_Study/hcoin/db"
 	"github.com/HoYaStudy/Go_Study/hcoin/utils"
 )
 
@@ -22,7 +21,7 @@ type Block struct {
 var ErrNotFound = errors.New("Block not found")
 
 func FindBlock(hash string) (*Block, error) {
-	blockBytes := db.Block(hash)
+	blockBytes := dbStorage.FindBlock(hash)
 	if blockBytes == nil {
 		return nil, ErrNotFound
 	}
@@ -35,8 +34,8 @@ func createBlock(prevHash string, height int, difficulty int) *Block {
 	block := &Block{
 		Hash: "", PrevHash: prevHash, Height: height, Difficulty: difficulty, Nonce: 0,
 	}
-	block.mine()
 	block.Transactions = Mempool().TxToConfirm()
+	block.mine()
 	persistBlock(block)
 	return block
 
@@ -57,7 +56,7 @@ func (b *Block) mine() {
 }
 
 func persistBlock(b *Block) {
-	db.SaveBlock(b.Hash, utils.ToBytes(b))
+	dbStorage.SaveBlock(b.Hash, utils.ToBytes(b))
 }
 
 func (b *Block) restore(data []byte) {
