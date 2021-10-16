@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	htemplate "html/template"
+	_ "math"
+)
 
 func main() {
-	fmt.Println("Hello Go")
+	htemplate.New("Test")
 }
