@@ -23,3 +23,9 @@ func TestAdder(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkAdder(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Adder(1, 2)
+	}
+}
