@@ -1,5 +1,10 @@
 # Interpreter in Go
 
+## REPL (Read, Eval, Print, Loop)
+
+- Run
+  > $ go run main.go
+
 ## Lexer (Lexical Analysis)
 
 ```
