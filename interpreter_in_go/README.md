@@ -41,3 +41,15 @@ Programming언어를 parsing할 때 2가지 전략이 있다.
 with Tracing
 
 > $ go test -v -run <TEST_NAME> ./parser
+
+## Evaluator
+
+```
+AST (Abstract Syntax Tree) -> Evaluate
+```
+
+- Tree-Walking interpreter
+
+### ✅ Test
+
+> $ go test ./evaluator
