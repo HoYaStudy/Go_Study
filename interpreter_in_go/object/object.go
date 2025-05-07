@@ -13,8 +13,10 @@ const (
 	NULL_OBJ         = "NULL"
 	BOOLEAN_OBJ      = "BOOLEAN"
 	INTEGER_OBJ      = "INTEGER"
+	STRING_OBJ       = "STRING"
 	FUNCTION_OBJ     = "FUNCTION"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
+	BUILTIN_OBJ      = "BUILTIN"
 	ERROR_OBJ        = "ERROR"
 )
 
@@ -33,10 +35,20 @@ type Integer struct {
 	Value int64
 }
 
+type String struct {
+	Value string
+}
+
 type Function struct {
 	Parameters []*ast.Identifier
 	Body       *ast.BlockStatement
 	Env        *Environment
+}
+
+type BuiltInFunction func(args ...Object) Object
+
+type BuiltIn struct {
+	Function BuiltInFunction
 }
 
 type ReturnValue struct {
@@ -68,6 +80,13 @@ func (i *Integer) Inspect() string {
 	return fmt.Sprintf("%d", i.Value)
 }
 
+func (s *String) Type() ObjectType {
+	return STRING_OBJ
+}
+func (s *String) Inspect() string {
+	return s.Value
+}
+
 func (f *Function) Type() ObjectType {
 	return FUNCTION_OBJ
 }
@@ -87,6 +106,13 @@ func (f *Function) Inspect() string {
 	out.WriteString("\n}")
 
 	return out.String()
+}
+
+func (b *BuiltIn) Type() ObjectType {
+	return BUILTIN_OBJ
+}
+func (b *BuiltIn) Inspect() string {
+	return "builtin function"
 }
 
 func (rv *ReturnValue) Type() ObjectType {

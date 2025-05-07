@@ -40,6 +40,11 @@ type Boolean struct {
 	Value bool
 }
 
+type StringLiteral struct {
+	Token token.Token
+	Value string
+}
+
 type FunctionLiteral struct {
 	Token      token.Token
 	Parameters []*Identifier
@@ -132,6 +137,14 @@ func (b *Boolean) TokenLiteral() string {
 }
 func (b *Boolean) String() string {
 	return b.Token.Literal
+}
+
+func (sl *StringLiteral) expressionNode() {}
+func (sl *StringLiteral) TokenLiteral() string {
+	return sl.Token.Literal
+}
+func (sl *StringLiteral) String() string {
+	return sl.Token.Literal
 }
 
 func (fl *FunctionLiteral) expressionNode() {}
