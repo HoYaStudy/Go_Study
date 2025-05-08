@@ -14,6 +14,7 @@ const (
 	BOOLEAN_OBJ      = "BOOLEAN"
 	INTEGER_OBJ      = "INTEGER"
 	STRING_OBJ       = "STRING"
+	ARRAY_OBJ        = "ARRAY"
 	FUNCTION_OBJ     = "FUNCTION"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	BUILTIN_OBJ      = "BUILTIN"
@@ -37,6 +38,10 @@ type Integer struct {
 
 type String struct {
 	Value string
+}
+
+type Array struct {
+	Elements []Object
 }
 
 type Function struct {
@@ -85,6 +90,24 @@ func (s *String) Type() ObjectType {
 }
 func (s *String) Inspect() string {
 	return s.Value
+}
+
+func (a *Array) Type() ObjectType {
+	return ARRAY_OBJ
+}
+func (a *Array) Inspect() string {
+	var out bytes.Buffer
+
+	elements := []string{}
+	for _, e := range a.Elements {
+		elements = append(elements, e.Inspect())
+	}
+
+	out.WriteString("[")
+	out.WriteString(strings.Join(elements, ", "))
+	out.WriteString("]")
+
+	return out.String()
 }
 
 func (f *Function) Type() ObjectType {
