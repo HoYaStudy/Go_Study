@@ -32,6 +32,7 @@ const (
 	// Delimeter
 	COMMA     = ","
 	SEMICOLON = ";"
+	COLON     = ":"
 	LPAREN    = "("
 	RPAREN    = ")"
 	LBRACE    = "{"
